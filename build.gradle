@@ -1,0 +1,87 @@
+plugins {
+    id 'java'
+    id 'net.neoforged.moddev' version '2.0.28'
+}
+
+version = '1.0.0'
+group = 'com.cropaura'
+
+base {
+    archivesName = 'cropaura'
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+neoForge {
+    version = '21.1.172'
+
+    parchment {
+        mappingsVersion = '2024.11.17'
+        minecraftVersion = '1.21.1'
+    }
+
+    runs {
+        client {
+            client()
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        server {
+            server()
+            programArgument '--nogui'
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        gameTestServer {
+            type = 'gameTestServer'
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        data {
+            data()
+            programArguments.addAll '--mod', project.mod_id,
+                '--all',
+                '--output', file('src/generated/resources/').getAbsolutePath(),
+                '--existing', file('src/main/resources/').getAbsolutePath()
+        }
+    }
+
+    mods {
+        "${project.mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+repositories {
+    maven {
+        name = 'ParchmentMC'
+        url = 'https://maven.parchmentmc.org'
+    }
+}
+
+dependencies {
+}
+
+tasks.withType(ProcessResources).configureEach {
+    var replaceProperties = [
+        minecraft_version     : '1.21.1',
+        minecraft_version_range: '[1.21.1,1.22)',
+        neo_version           : '21.1.172',
+        neo_version_range     : '[21.1,)',
+        loader_version_range  : '[2,)',
+        mod_id                : project.mod_id,
+        mod_name              : 'Crop Aura',
+        mod_license           : 'MIT',
+        mod_version           : project.version,
+        mod_authors           : 'CropAura',
+        mod_description       : 'Automatically applies bonemeal to crops around the player.'
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/mods.toml', 'META-INF/neoforge.mods.toml']) {
+        expand replaceProperties
+    }
+}
