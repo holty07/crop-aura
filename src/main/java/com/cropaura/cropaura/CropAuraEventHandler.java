@@ -20,7 +20,6 @@ public class CropAuraEventHandler {
 
     private static final Set<UUID> DISABLED_PLAYERS = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-    @SubscribeEvent
     public static void onRegisterPayloads(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(CropAura.MODID);
         registrar.playToServer(
