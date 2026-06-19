@@ -1,26 +1,27 @@
 package com.cropaura.cropaura;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.neoforge.common.NeoForge;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(CropAura.MODID)
 public class CropAura {
 
     public static final String MODID = "cropaura";
 
-    public CropAura(IEventBus modEventBus, ModContainer modContainer) {
-        modContainer.registerConfig(ModConfig.Type.COMMON, CropAuraConfig.SPEC, "cropaura-common.toml");
+    public CropAura() {
+        var modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        NeoForge.EVENT_BUS.register(new CropAuraEventHandler());
-        modEventBus.addListener(CropAuraEventHandler::onRegisterPayloads);
+        CropAuraConfig.register(modEventBus);
+        PacketHandler.register();
 
-        if (net.neoforged.fml.loading.FMLEnvironment.dist == Dist.CLIENT) {
+        MinecraftForge.EVENT_BUS.register(new CropAuraEventHandler());
+
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             modEventBus.addListener(ClientSetup::onRegisterKeyMappings);
-            NeoForge.EVENT_BUS.register(new ClientEventHandler());
-        }
+            MinecraftForge.EVENT_BUS.register(new ClientEventHandler());
+        });
     }
 }

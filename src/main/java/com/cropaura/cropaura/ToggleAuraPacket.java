@@ -1,20 +1,27 @@
 package com.cropaura.cropaura;
 
-import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkEvent;
 
-public record ToggleAuraPacket() implements CustomPacketPayload {
+import java.util.function.Supplier;
 
-    public static final Type<ToggleAuraPacket> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(CropAura.MODID, "toggle_aura"));
+public class ToggleAuraPacket {
 
-    public static final StreamCodec<ByteBuf, ToggleAuraPacket> STREAM_CODEC =
-            StreamCodec.unit(new ToggleAuraPacket());
+    public ToggleAuraPacket() {}
 
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+    public ToggleAuraPacket(FriendlyByteBuf buf) {}
+
+    public void encode(FriendlyByteBuf buf) {}
+
+    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
+        NetworkEvent.Context context = contextSupplier.get();
+        context.enqueueWork(() -> {
+            ServerPlayer player = context.getSender();
+            if (player != null) {
+                CropAuraEventHandler.togglePlayer(player);
+            }
+        });
+        context.setPacketHandled(true);
     }
 }

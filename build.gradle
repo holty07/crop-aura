@@ -1,7 +1,18 @@
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '6.+', changing: true
+    }
+}
+
 plugins {
     id 'java'
-    id 'net.neoforged.moddev' version '2.0.141'
 }
+
+apply plugin: 'net.minecraftforge.gradle'
 
 version = '1.0.0'
 group = 'com.cropaura'
@@ -11,77 +22,76 @@ base {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(21)
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
-neoForge {
-    version = '21.1.172'
-
-    parchment {
-        mappingsVersion = '2024.11.17'
-        minecraftVersion = '1.21.1'
-    }
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
 
     runs {
         client {
-            client()
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                cropaura {
+                    source sourceSets.main
+                }
+            }
         }
 
         server {
-            server()
-            programArgument '--nogui'
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-        }
-
-        gameTestServer {
-            type = 'gameTestServer'
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            args '--nogui'
+            mods {
+                cropaura {
+                    source sourceSets.main
+                }
+            }
         }
 
         data {
-            data()
-            programArguments.addAll '--mod', project.mod_id,
-                '--all',
-                '--output', file('src/generated/resources/').getAbsolutePath(),
-                '--existing', file('src/main/resources/').getAbsolutePath()
-        }
-    }
-
-    mods {
-        "${project.mod_id}" {
-            sourceSet(sourceSets.main)
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            args '--mod', 'cropaura', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            mods {
+                cropaura {
+                    source sourceSets.main
+                }
+            }
         }
     }
 }
 
 repositories {
-    maven {
-        name = 'ParchmentMC'
-        url = 'https://maven.parchmentmc.org'
-    }
+    maven { url = 'https://maven.minecraftforge.net' }
+    mavenCentral()
 }
 
 dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.3.0'
 }
 
 tasks.withType(ProcessResources).configureEach {
     var replaceProperties = [
-        minecraft_version     : '1.21.1',
-        minecraft_version_range: '[1.21.1,1.22)',
-        neo_version           : '21.1.172',
-        neo_version_range     : '[21.1,)',
-        loader_version_range  : '[2,)',
-        mod_id                : project.mod_id,
-        mod_name              : 'Crop Aura',
-        mod_license           : 'MIT',
-        mod_version           : project.version,
-        mod_authors           : 'CropAura',
-        mod_description       : 'Automatically applies bonemeal to crops around the player.'
+        minecraft_version      : '1.20.1',
+        minecraft_version_range: '[1.20.1,1.21)',
+        forge_version          : '47.3.0',
+        forge_version_range    : '[47,)',
+        loader_version_range   : '[47,)',
+        mod_id                 : project.mod_id,
+        mod_name               : 'Crop Aura',
+        mod_license            : 'MIT',
+        mod_version            : project.version,
+        mod_authors            : 'CropAura',
+        mod_description        : 'Automatically applies bonemeal to crops around the player.'
     ]
     inputs.properties replaceProperties
 
-    filesMatching(['META-INF/mods.toml', 'META-INF/neoforge.mods.toml']) {
+    filesMatching(['META-INF/mods.toml']) {
         expand replaceProperties
     }
 }

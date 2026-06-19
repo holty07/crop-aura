@@ -1,25 +1,25 @@
 modLoader = "javafml"
-loaderVersion = "[2,)"
-license = "MIT"
+loaderVersion = "${loader_version_range}"
+license = "${mod_license}"
 
 [[mods]]
-    modId = "cropaura"
-    version = "1.0.0"
-    displayName = "Crop Aura"
+    modId = "${mod_id}"
+    version = "${mod_version}"
+    displayName = "${mod_name}"
     description = '''
-Automatically applies bonemeal to crops around the player.
+${mod_description}
     '''
 
 [[dependencies.cropaura]]
-    modId = "neoforge"
-    type = "required"
-    versionRange = "[21.1,)"
+    modId = "forge"
+    mandatory = true
+    versionRange = "${forge_version_range}"
     ordering = "NONE"
     side = "BOTH"
 
 [[dependencies.cropaura]]
     modId = "minecraft"
-    type = "required"
-    versionRange = "[1.21.1,1.22)"
+    mandatory = true
+    versionRange = "${minecraft_version_range}"
     ordering = "NONE"
     side = "BOTH"

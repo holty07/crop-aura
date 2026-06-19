@@ -1,6 +1,6 @@
 package com.cropaura.cropaura;
 
-import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 
 public class ClientSetup {
 

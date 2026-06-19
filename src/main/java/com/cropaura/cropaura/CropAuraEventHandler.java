@@ -6,10 +6,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Collections;
 import java.util.Set;
@@ -18,45 +16,22 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class CropAuraEventHandler {
 
-    private static final Set<UUID> DISABLED_PLAYERS = Collections.newSetFromMap(new ConcurrentHashMap<>());
-
-    public static void onRegisterPayloads(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar(CropAura.MODID);
-        registrar.playToServer(
-                ToggleAuraPacket.TYPE,
-                ToggleAuraPacket.STREAM_CODEC,
-                (packet, context) -> {
-                    ServerPlayer player = (ServerPlayer) context.player();
-                    UUID id = player.getUUID();
-                    if (DISABLED_PLAYERS.contains(id)) {
-                        DISABLED_PLAYERS.remove(id);
-                        player.sendSystemMessage(Component.literal("[Crop Aura] Enabled"));
-                    } else {
-                        DISABLED_PLAYERS.add(id);
-                        player.sendSystemMessage(Component.literal("[Crop Aura] Disabled"));
-                    }
-                }
-        );
-    }
+    public static final Set<UUID> DISABLED_PLAYERS = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     @SubscribeEvent
-    public void onPlayerTick(PlayerTickEvent.Post event) {
-        if (!(event.getEntity().level() instanceof ServerLevel serverLevel)) {
-            return;
-        }
+    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        if (!(event.player.level() instanceof ServerLevel serverLevel)) return;
 
-        if (DISABLED_PLAYERS.contains(event.getEntity().getUUID())) {
-            return;
-        }
+        ServerPlayer player = (ServerPlayer) event.player;
+        if (DISABLED_PLAYERS.contains(player.getUUID())) return;
 
         long gameTick = serverLevel.getGameTime();
         int interval = CropAuraConfig.TICK_INTERVAL.get();
-        if (gameTick % interval != 0) {
-            return;
-        }
+        if (gameTick % interval != 0) return;
 
         int radius = CropAuraConfig.RADIUS.get();
-        BlockPos center = event.getEntity().blockPosition();
+        BlockPos center = player.blockPosition();
 
         for (int x = -radius; x <= radius; x++) {
             for (int z = -radius; z <= radius; z++) {
@@ -65,12 +40,23 @@ public class CropAuraEventHandler {
                     BlockState state = serverLevel.getBlockState(pos);
 
                     if (state.getBlock() instanceof BonemealableBlock bonemealable) {
-                        if (bonemealable.isValidBonemealTarget(serverLevel, pos, state)) {
+                        if (bonemealable.isValidBonemealTarget(serverLevel, pos, state, false)) {
                             bonemealable.performBonemeal(serverLevel, serverLevel.random, pos, state);
                         }
                     }
                 }
             }
+        }
+    }
+
+    public static void togglePlayer(ServerPlayer player) {
+        UUID id = player.getUUID();
+        if (DISABLED_PLAYERS.contains(id)) {
+            DISABLED_PLAYERS.remove(id);
+            player.sendSystemMessage(Component.literal("[Crop Aura] Enabled"));
+        } else {
+            DISABLED_PLAYERS.add(id);
+            player.sendSystemMessage(Component.literal("[Crop Aura] Disabled"));
         }
     }
 }

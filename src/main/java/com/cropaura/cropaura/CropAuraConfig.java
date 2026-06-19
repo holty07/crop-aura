@@ -1,14 +1,17 @@
 package com.cropaura.cropaura;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.config.ModConfig;
 
 public class CropAuraConfig {
 
-    public static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
-    public static final ModConfigSpec SPEC;
+    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+    public static final ForgeConfigSpec SPEC;
 
-    public static final ModConfigSpec.IntValue RADIUS;
-    public static final ModConfigSpec.IntValue TICK_INTERVAL;
+    public static final ForgeConfigSpec.IntValue RADIUS;
+    public static final ForgeConfigSpec.IntValue TICK_INTERVAL;
 
     static {
         BUILDER.comment("Crop Aura Configuration");
@@ -22,5 +25,9 @@ public class CropAuraConfig {
             .defineInRange("tickInterval", 20, 1, 200);
 
         SPEC = BUILDER.build();
+    }
+
+    public static void register(IEventBus modEventBus) {
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, SPEC, "cropaura-common.toml");
     }
 }

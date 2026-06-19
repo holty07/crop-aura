@@ -1,15 +1,15 @@
 package com.cropaura.cropaura;
 
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class ClientEventHandler {
 
     @SubscribeEvent
-    public void onClientTick(ClientTickEvent.Post event) {
+    public void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
         while (KeyBindings.TOGGLE_AURA.consumeClick()) {
-            PacketDistributor.sendToServer(new ToggleAuraPacket());
+            PacketHandler.INSTANCE.sendToServer(new ToggleAuraPacket());
         }
     }
 }
