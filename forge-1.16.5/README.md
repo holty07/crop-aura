@@ -29,7 +29,18 @@ version Mojang's own internal names still matched MCP's class names (the `World`
 names read the same as classic MCP tutorials — only some method/field names are Mojang-specific:
 `getUUID()`, `blockPosition()`, `player.level`, `.random`, `isClientSide`.
 
-`org.gradle.workers.max=1` is set in `gradle.properties` to serialize Gradle's worker execution;
-without it, ForgeGradle's mapping-generation step hit a reproducible `NoSuchFileException` in CI
-(writing a generated `.tsrg` file into a directory that wasn't created yet), which looked like a
-concurrency race specific to multi-core runners.
+## Known ForgeGradle 4 bug and the priming step
+
+ForgeGradle 4 has an unresolved upstream bug generating mapping files for Minecraft 1.16.5
+(`MinecraftForge/ForgeGradle#740`): it throws `NoSuchFileException` trying to write a generated
+`.tsrg` mapping file because it never creates the file's parent directory itself. This reproduces
+100% of the time on a clean Gradle cache, regardless of mapping channel (`official` or MCP
+`snapshot`/`stable`) or Forge version.
+
+The documented workaround: ForgeGradle 3 (older, requires Gradle below 6.0) generates the same
+mapping files correctly. Once they exist in the shared Gradle cache, ForgeGradle 4 finds them and
+works fine. `forge-1.16.5-priming/` (at the repo root, alongside this module) is a throwaway FG3
+sub-project whose only job is to force that generation — the CI workflow runs it first, sharing
+the same `GRADLE_USER_HOME`, before running the real FG4 build in this module. If you're building
+locally and hit the same `NoSuchFileException`, run
+`cd forge-1.16.5-priming && ./gradlew dependencies --configuration compileClasspath` once first.

@@ -51,6 +51,15 @@ jobs:
         with:
           cache-disabled: true
 
+      # Works around a known, unresolved ForgeGradle 4 bug (MinecraftForge/ForgeGradle#740):
+      # FG4 throws NoSuchFileException generating mapping .tsrg files for MC 1.16.5 because it
+      # never creates the parent directory itself. FG3 (older, on Gradle <6.0) generates those
+      # same files correctly; once they exist in the shared Gradle cache, FG4 finds them and
+      # works. This step just forces that generation before the real build runs.
+      - name: Prime ForgeGradle mapping cache with ForgeGradle 3
+        working-directory: forge-1.16.5-priming
+        run: ./gradlew dependencies --configuration compileClasspath
+
       - name: Build with Gradle
         working-directory: forge-1.16.5
         run: ./gradlew build
