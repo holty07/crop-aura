@@ -11,7 +11,7 @@ public class ClientEventHandler {
             return;
         }
 
-        while (KeyBindings.TOGGLE_AURA.isPressed()) {
+        while (KeyBindings.TOGGLE_AURA.consumeClick()) {
             CropAuraNetwork.CHANNEL.sendToServer(new ToggleAuraPacket());
         }
     }
