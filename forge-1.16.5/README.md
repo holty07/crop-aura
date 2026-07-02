@@ -19,12 +19,17 @@ cd forge-1.16.5
 ## Requirements
 
 - Java 8 (Minecraft 1.16.5 / Forge do not support newer JDKs)
-- Forge `1.16.5-36.2.39` or later 36.2.x
+- Forge `1.16.5-36.1.0` or later
 
 ## Mappings
 
-This module uses classic MCP mappings (`snapshot`/`20210309-1.16.5`), not Mojang's official
-mappings — ForgeGradle 4.1's official-mapping code path has a reproducible bug for 1.16.5
-(`NoSuchFileException` while generating `mcp_config-1.16.5-obf_to_srg.tsrg`). Source uses MCP
-naming accordingly: `World`, `PlayerEntity`, `getUniqueID()`, `player.world`, etc., rather than
-the `Level`/`Player`/`getUUID()` names used in the 1.21.1 NeoForge module.
+This module uses Mojang's official mappings channel (`official`/`1.16.5`). At this Minecraft
+version Mojang's own internal names still matched MCP's class names (the `World`→`Level`,
+`PlayerEntity`→`Player` renames only landed in Mojang's mappings starting with 1.17), so class
+names read the same as classic MCP tutorials — only some method/field names are Mojang-specific:
+`getUUID()`, `blockPosition()`, `player.level`, `.random`, `isClientSide`.
+
+`org.gradle.workers.max=1` is set in `gradle.properties` to serialize Gradle's worker execution;
+without it, ForgeGradle's mapping-generation step hit a reproducible `NoSuchFileException` in CI
+(writing a generated `.tsrg` file into a directory that wasn't created yet), which looked like a
+concurrency race specific to multi-core runners.
