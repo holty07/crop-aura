@@ -1,6 +1,6 @@
 package com.cropaura.cropaura;
 
-import net.minecraftforge.client.registry.ClientRegistry;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 
 public class ClientSetup {
 

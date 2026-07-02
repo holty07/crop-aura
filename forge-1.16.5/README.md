@@ -19,15 +19,18 @@ cd forge-1.16.5
 ## Requirements
 
 - Java 8 (Minecraft 1.16.5 / Forge do not support newer JDKs)
-- Forge `1.16.5-36.1.0` or later
+- Forge `1.16.5-36.2.39` or later (`KeyBinding.isPressed()` is a Forge-side addition not present
+  in earlier 1.16.5 patches like `36.1.0`)
 
 ## Mappings
 
 This module uses Mojang's official mappings channel (`official`/`1.16.5`). At this Minecraft
-version Mojang's own internal names still matched MCP's class names (the `World`→`Level`,
-`PlayerEntity`→`Player` renames only landed in Mojang's mappings starting with 1.17), so class
-names read the same as classic MCP tutorials — only some method/field names are Mojang-specific:
-`getUUID()`, `blockPosition()`, `player.level`, `.random`, `isClientSide`.
+version Mojang's own internal names mostly matched MCP's names for classes (the `World`→`Level`,
+`PlayerEntity`→`Player` renames only landed starting with 1.17), but some *methods* already used
+Mojang's own naming even at 1.16.5, e.g. `PlayerEntity#displayClientMessage` (not
+`sendStatusMessage`) and `IGrowable#isValidBonemealTarget`/`isBonemealSuccess`/`performBonemeal`
+(not `canGrow`/`canUseBonemeal`/`grow`) — plus `getUUID()`, `blockPosition()`, `player.level`,
+`.random`, `isClientSide`.
 
 ## Known ForgeGradle 4 bug and the priming step
 

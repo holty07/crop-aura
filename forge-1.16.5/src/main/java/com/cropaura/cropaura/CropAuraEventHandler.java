@@ -23,10 +23,10 @@ public class CropAuraEventHandler {
         UUID id = player.getUUID();
         if (DISABLED_PLAYERS.contains(id)) {
             DISABLED_PLAYERS.remove(id);
-            player.sendStatusMessage(new StringTextComponent("[Crop Aura] Enabled"), false);
+            player.displayClientMessage(new StringTextComponent("[Crop Aura] Enabled"), false);
         } else {
             DISABLED_PLAYERS.add(id);
-            player.sendStatusMessage(new StringTextComponent("[Crop Aura] Disabled"), false);
+            player.displayClientMessage(new StringTextComponent("[Crop Aura] Disabled"), false);
         }
     }
 
@@ -64,9 +64,8 @@ public class CropAuraEventHandler {
 
                     if (state.getBlock() instanceof IGrowable) {
                         IGrowable growable = (IGrowable) state.getBlock();
-                        if (growable.canGrow(serverWorld, pos, state, false)
-                                && growable.canUseBonemeal(serverWorld, serverWorld.random, pos, state)) {
-                            growable.grow(serverWorld, serverWorld.random, pos, state);
+                        if (growable.isValidBonemealTarget(serverWorld, pos, state, false)) {
+                            growable.performBonemeal(serverWorld, serverWorld.random, pos, state);
                         }
                     }
                 }
