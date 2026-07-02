@@ -20,3 +20,11 @@ cd forge-1.16.5
 
 - Java 8 (Minecraft 1.16.5 / Forge do not support newer JDKs)
 - Forge `1.16.5-36.2.39` or later 36.2.x
+
+## Mappings
+
+This module uses classic MCP mappings (`snapshot`/`20210309-1.16.5`), not Mojang's official
+mappings — ForgeGradle 4.1's official-mapping code path has a reproducible bug for 1.16.5
+(`NoSuchFileException` while generating `mcp_config-1.16.5-obf_to_srg.tsrg`). Source uses MCP
+naming accordingly: `World`, `PlayerEntity`, `getUniqueID()`, `player.world`, etc., rather than
+the `Level`/`Player`/`getUUID()` names used in the 1.21.1 NeoForge module.

@@ -51,10 +51,7 @@ jobs:
 
       - name: Build with Gradle
         working-directory: forge-1.16.5
-        # ForgeGradle can fail on a fully cold cache with a NoSuchFileException while
-        # generating official mappings (a parent dir isn't created yet); retry once,
-        # since the partially-populated local cache from the first attempt fixes it.
-        run: ./gradlew build || ./gradlew build
+        run: ./gradlew build
 
       - name: Upload mod jar
         uses: actions/upload-artifact@v4
