@@ -48,3 +48,21 @@ minecraft {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.16.5-36.2.39'
 }
+
+jar {
+    manifest {
+        attributes([
+            "Specification-Title"   : "cropaura",
+            "Specification-Vendor"  : "CropAura",
+            "Specification-Version" : "1",
+            "Implementation-Title"  : project.name,
+            "Implementation-Version": project.version,
+            "Implementation-Vendor" : "CropAura"
+        ])
+    }
+}
+
+// Mod code is compiled against friendly ("official" mapping) names, but production Forge's
+// runtime remapper expects SRG names in shipped mod bytecode. Without this, the jar loads
+// without crashing but silently fails wherever it touches vanilla/Forge code.
+jar.finalizedBy('reobfJar')

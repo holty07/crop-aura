@@ -47,3 +47,15 @@ sub-project whose only job is to force that generation — the CI workflow runs 
 the same `GRADLE_USER_HOME`, before running the real FG4 build in this module. If you're building
 locally and hit the same `NoSuchFileException`, run
 `cd forge-1.16.5-priming && ./gradlew dependencies --configuration compileClasspath` once first.
+
+## Reobfuscation
+
+Mod code is compiled against the friendly `official`-mapping names (`displayClientMessage()`,
+etc.), but production Forge's runtime remapper expects shipped mod bytecode to reference
+vanilla/Forge methods by their SRG names (`func_NNNNN_x`/`field_NNNNN_x`). `build.gradle` wires
+`jar.finalizedBy('reobfJar')` to do that remapping as part of `./gradlew build` — without it, the
+built jar loads without crashing but silently does nothing at runtime (no entry in the in-game
+mod list, keybind never registers), since none of the remapped calls resolve. The CI workflow's
+"Verify jar was reobfuscated" step disassembles a class from the built jar and should show SRG
+names in its method calls, not friendly ones — if it ever shows friendly names again, reobf isn't
+running.
